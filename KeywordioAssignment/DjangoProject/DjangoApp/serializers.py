@@ -12,7 +12,7 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
 class AdminLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminTable
-        fields = ['Email', 'Password']
+        fields = ['id','Email', 'Password']
         extra_kwargs = {'Password': {'write_only': True}}
 
     def create(self, validated_data):

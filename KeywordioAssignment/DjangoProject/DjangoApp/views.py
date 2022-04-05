@@ -1,5 +1,7 @@
 from django.contrib.auth.hashers import check_password
+import json
 
+from django.http import HttpResponse
 from rest_framework import generics
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -36,35 +38,24 @@ class AdminLoginApi(generics.GenericAPIView):
     serializer_class = AdminLoginSerializer
 
     def post(self, request):
-        username = request.data.get('Username')
-        password = request.data.get('Password')
-        if AdminTable.objects.filter(Email=username).first():
-            user = AdminTable.objects.filter(Email=username).first()
-            if check_password(password, user.Password):
-                s = AdminLoginSerializer(user, data=request.data, partial=True)
-                s.is_valid(raise_exception=True)
-                s.save()
-                serializer_class = AdminRegistrationSerializer(user).data
-                return Response({
+        try:
+            Email = request.data.get('Email')
+            Password = request.data.get('Password')
+            userdata = AdminTable.objects.get(Email=Email,Password=Password)
+            #if userdata.Password == Password:
+            return Response({
                     'message': 'Successful',
-                    'Result': serializer_class.data,
+                    'Result': AdminRegistrationSerializer(userdata).data,
                     'HasError': False,
                     'status': 200
                 })
-            else:
-                return Response({
-                    'message': 'user not found',
-                    'Result': [],
-                    'HasError': True,
-                    'status': 400
-                })
-
-        return Response({
-            'message': 'Please enter valid details',
-            'Result': [],
-            'HasError': True,
-            'status': 400
-        })
+        except Exception as e:
+            return Response({
+                'message': 'Fail',
+                'Result': [],
+                'HasError': True,
+                'status': 400
+            })
 
 
 class BooksEntryApi(generics.GenericAPIView):
